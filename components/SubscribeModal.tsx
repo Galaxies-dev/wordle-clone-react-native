@@ -13,6 +13,8 @@ export type Ref = BottomSheetModal;
 
 import disc from '@jsamr/counter-style/presets/disc';
 import MarkedList from '@jsamr/react-native-li';
+import { Link } from 'expo-router';
+import { Colors } from '@/constants/Colors';
 
 const BENEFITS = [
   'Enjoy full access to Wordle, Spelling Bee, The Crossword and more.',
@@ -49,11 +51,13 @@ const SubscribeModal = forwardRef<Ref>((props, ref) => {
       handleComponent={null}>
       <View style={styles.contentContainer}>
         <View style={styles.modalBtns}>
-          <TouchableOpacity>
-            <Text style={styles.textBtn}>LOG IN</Text>
-          </TouchableOpacity>
+          <Link href={'/login'} asChild>
+            <TouchableOpacity>
+              <Text style={styles.textBtn}>LOG IN</Text>
+            </TouchableOpacity>
+          </Link>
           <TouchableOpacity onPress={() => dismiss()}>
-            <Ionicons name="close" size={28} color="#9e9e9e" />
+            <Ionicons name="close" size={28} color={Colors.light.grey} />
           </TouchableOpacity>
         </View>
         <BottomSheetScrollView>
@@ -142,6 +146,8 @@ const styles = StyleSheet.create({
   footer: {
     backgroundColor: '#fff',
     marginTop: 'auto',
+    paddingHorizontal: 20,
+
     shadowColor: '#000',
     shadowOffset: {
       width: 0,

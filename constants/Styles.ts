@@ -7,7 +7,6 @@ export const defaultStyles = StyleSheet.create({
     borderRadius: 2,
     alignItems: 'center',
     justifyContent: 'center',
-    marginHorizontal: 20,
     backgroundColor: '#000',
   },
   btnText: {

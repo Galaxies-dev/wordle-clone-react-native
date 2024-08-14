@@ -7,12 +7,12 @@ import { Link } from 'expo-router';
 import SubscribeModal from '@/components/SubscribeModal';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useRef } from 'react';
+import { SignedOut } from '@clerk/clerk-expo';
 
 export default function Index() {
   const colorScheme = useColorScheme();
   const backgroundColor = Colors[colorScheme ?? 'light'].background;
   const textColor = Colors[colorScheme ?? 'light'].text;
-
   const subscribeModalRef = useRef<BottomSheetModal>(null);
 
   const handlePresentSubscribeModalPress = () => subscribeModalRef.current?.present();
@@ -37,10 +37,13 @@ export default function Index() {
           </TouchableOpacity>
         </Link>
 
-        <TouchableOpacity style={[styles.btn, { borderColor: textColor }]}>
-          <ThemedText style={styles.btnText}>Log in</ThemedText>
-        </TouchableOpacity>
-
+        <SignedOut>
+          <Link href={'/login'} style={[styles.btn, { borderColor: textColor }]} asChild>
+            <TouchableOpacity>
+              <ThemedText style={styles.btnText}>Log in</ThemedText>
+            </TouchableOpacity>
+          </Link>
+        </SignedOut>
         <TouchableOpacity
           style={[styles.btn, { borderColor: textColor }]}
           onPress={handlePresentSubscribeModalPress}>
