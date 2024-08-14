@@ -57,7 +57,7 @@ const SubscribeModal = forwardRef<Ref>((props, ref) => {
             </TouchableOpacity>
           </Link>
           <TouchableOpacity onPress={() => dismiss()}>
-            <Ionicons name="close" size={28} color={Colors.light.grey} />
+            <Ionicons name="close" size={28} color={Colors.light.gray} />
           </TouchableOpacity>
         </View>
         <BottomSheetScrollView>

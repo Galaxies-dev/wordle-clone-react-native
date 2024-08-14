@@ -1,5 +1,5 @@
 // Thanks to https://github.com/chidiwilliams/wordle/blob/main/src/data/words.json
-export const words = [
+export const allWords = [
   'docty',
   'aahed',
   'aalii',

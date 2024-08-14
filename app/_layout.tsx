@@ -29,6 +29,8 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
+  const textColor = Colors[colorScheme ?? 'light'].text;
+
   const router = useRouter();
 
   let [fontsLoaded] = useFonts({
@@ -67,14 +69,14 @@ export default function RootLayout() {
                     headerTintColor: colorScheme === 'dark' ? '#fff' : '#000',
                     headerBackTitleStyle: {
                       fontFamily: 'FrankRuhlLibre_800ExtraBold',
-                      fontSize: 24,
+                      fontSize: 26,
                     },
                     title: '',
                     headerRight: () => (
                       <View style={styles.headerIcons}>
-                        <Ionicons name="help-circle-outline" size={28} color="black" />
-                        <Ionicons name="podium-outline" size={24} color="black" />
-                        <Ionicons name="settings-sharp" size={24} color="black" />
+                        <Ionicons name="help-circle-outline" size={28} color={textColor} />
+                        <Ionicons name="podium-outline" size={24} color={textColor} />
+                        <Ionicons name="settings-sharp" size={24} color={textColor} />
                       </View>
                     ),
                   }}
@@ -87,9 +89,22 @@ export default function RootLayout() {
                     headerShadowVisible: false,
                     headerLeft: () => (
                       <TouchableOpacity onPress={() => router.back()}>
-                        <Ionicons name="close" size={26} color={Colors.light.grey} />
+                        <Ionicons name="close" size={26} color={Colors.light.gray} />
                       </TouchableOpacity>
                     ),
+                  }}
+                />
+                <Stack.Screen
+                  name="end"
+                  options={{
+                    presentation: 'fullScreenModal',
+                    title: '',
+                    headerShadowVisible: false,
+                    // headerStyle: {
+                    //   backgroundColor: '#fff',
+                    // },
+                    // headerTransparent: true,
+                    // headerShown: false,
                   }}
                 />
               </Stack>

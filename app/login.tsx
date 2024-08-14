@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
   },
   seperator: {
     fontFamily: 'mon-sb',
-    color: Colors.light.grey,
+    color: Colors.light.gray,
     fontSize: 16,
   },
   btnOutline: {
