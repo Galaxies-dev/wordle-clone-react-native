@@ -5,7 +5,14 @@ import {
   FrankRuhlLibre_500Medium,
   FrankRuhlLibre_900Black,
 } from '@expo-google-fonts/frank-ruhl-libre';
-import { useColorScheme, View, StyleSheet, Touchable, TouchableOpacity } from 'react-native';
+import {
+  useColorScheme,
+  View,
+  StyleSheet,
+  Touchable,
+  TouchableOpacity,
+  Appearance,
+} from 'react-native';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
@@ -16,6 +23,8 @@ import Logo from '@/assets/images/nyt-logo.svg';
 import { Colors } from '@/constants/Colors';
 import { ClerkProvider, ClerkLoaded } from '@clerk/clerk-expo';
 import { tokenCache } from '@/utils/cache';
+import { useMMKVBoolean, useMMKVListener } from 'react-native-mmkv';
+import { storage } from '@/utils/storage';
 const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!;
 
 if (!publishableKey) {
@@ -29,9 +38,12 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
-  const textColor = Colors[colorScheme ?? 'light'].text;
-
   const router = useRouter();
+  const [dark, setDark] = useMMKVBoolean('dark-mode', storage);
+
+  useEffect(() => {
+    Appearance.setColorScheme(dark ? 'dark' : 'light');
+  }, [dark]);
 
   let [fontsLoaded] = useFonts({
     FrankRuhlLibre_800ExtraBold,
@@ -72,13 +84,6 @@ export default function RootLayout() {
                       fontSize: 26,
                     },
                     title: '',
-                    headerRight: () => (
-                      <View style={styles.headerIcons}>
-                        <Ionicons name="help-circle-outline" size={28} color={textColor} />
-                        <Ionicons name="podium-outline" size={24} color={textColor} />
-                        <Ionicons name="settings-sharp" size={24} color={textColor} />
-                      </View>
-                    ),
                   }}
                 />
                 <Stack.Screen
@@ -115,10 +120,3 @@ export default function RootLayout() {
     </ClerkProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  headerIcons: {
-    flexDirection: 'row',
-    gap: 10,
-  },
-});

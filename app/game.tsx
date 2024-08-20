@@ -1,10 +1,13 @@
 import OnScreenKeyboard from '@/components/OnScreenKeyboard';
+import SettingsModal from '@/components/SettingsModal';
 import { Colors } from '@/constants/Colors';
 import { allWords } from '@/utils/allWords';
 import { words } from '@/utils/targetWords';
-import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
-import { StyleSheet, Text, useColorScheme, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { Stack, useRouter } from 'expo-router';
+import { useEffect, useRef, useState } from 'react';
+import { StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
 
 const Page = () => {
   // const [word, setWord] = useState(words[Math.floor(Math.random() * words.length)]);
@@ -19,13 +22,17 @@ const Page = () => {
   console.log('🚀 ~ Page ~ word:', word);
   const wordLetters = word.split('');
 
-  const [rows, setRows] = useState<string[][]>(new Array(1).fill(new Array(5).fill('')));
+  const [rows, setRows] = useState<string[][]>(new Array(3).fill(new Array(5).fill('')));
   const [curRow, setCurRow] = useState(0);
   const [curCol, setCurCol] = useState(0);
 
   const [greenLetters, setGreenLetters] = useState<string[]>([]);
   const [yellowLetters, setYellowLetters] = useState<string[]>([]);
   const [grayLetters, setGrayLetters] = useState<string[]>([]);
+
+  const settingsModalRef = useRef<BottomSheetModal>(null);
+
+  const handlePresentSubscribeModalPress = () => settingsModalRef.current?.present();
 
   const addKey = (key: string) => {
     const newRows = [...rows.map((row) => [...row])];
@@ -92,10 +99,10 @@ const Page = () => {
 
     if (currentWord === word) {
       console.log('🚀 ~ checkWord ~ WIN');
-      router.push(`/end?win=true&gameField=${JSON.stringify(rows)}`);
+      router.push(`/end?win=true&word=${word}&gameField=${JSON.stringify(rows)}`);
     } else if (curRow + 1 >= rows.length) {
       console.log('GAME OVER');
-      router.push(`/end?win=false&gameField=${JSON.stringify(rows)}`);
+      router.push(`/end?win=false&word=${word}&gameField=${JSON.stringify(rows)}`);
     }
 
     setCurRow(curRow + 1);
@@ -124,6 +131,20 @@ const Page = () => {
 
   return (
     <View style={[styles.container, { backgroundColor }]}>
+      <SettingsModal ref={settingsModalRef} />
+      <Stack.Screen
+        options={{
+          headerRight: () => (
+            <View style={styles.headerIcons}>
+              <Ionicons name="help-circle-outline" size={28} color={textColor} />
+              <Ionicons name="podium-outline" size={24} color={textColor} />
+              <TouchableOpacity onPress={handlePresentSubscribeModalPress}>
+                <Ionicons name="settings-sharp" size={24} color={textColor} />
+              </TouchableOpacity>
+            </View>
+          ),
+        }}
+      />
       <View style={styles.gameField}>
         {rows.map((row, rowIndex) => (
           <View style={styles.gameFieldRow} key={`row-${rowIndex}`}>
@@ -187,5 +208,9 @@ const styles = StyleSheet.create({
     fontSize: 30,
     textTransform: 'uppercase',
     fontWeight: 'bold',
+  },
+  headerIcons: {
+    flexDirection: 'row',
+    gap: 10,
   },
 });

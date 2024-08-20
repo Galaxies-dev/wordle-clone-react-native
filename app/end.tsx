@@ -3,14 +3,79 @@ import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Icon from '@/assets/images/wordle-icon.svg';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/Colors';
+import * as MailComposer from 'expo-mail-composer';
 
 const Page = () => {
-  const { win, gameField } = useLocalSearchParams<{ win: string; gameField?: string }>();
+  const { win, word, gameField } = useLocalSearchParams<{
+    win: string;
+    word: string;
+    gameField?: string;
+  }>();
   const router = useRouter();
 
   const shareGame = () => {
     const game = JSON.parse(gameField!);
     console.log('🚀 ~ shareGame ~ game:', game);
+    const imageText: string[][] = [];
+
+    const wordLetters = word.split('');
+
+    game.forEach((row: [], rowIndex: number) => {
+      imageText.push([]);
+      row.forEach((letter, index) => {
+        if (letter === wordLetters[index]) {
+          imageText[rowIndex].push('🟩');
+        } else if (wordLetters.includes(letter)) {
+          imageText[rowIndex].push('🟨');
+        } else {
+          imageText[rowIndex].push('⬜');
+        }
+      });
+    });
+
+    const html = `
+      <html>
+        <head>
+          <style>
+
+            .game {
+              display: flex;
+              flex-direction: column;
+            }
+              .row {
+              display: flex;
+              flex-direction: row;
+
+              }
+            .cell {
+              display: flex;
+              justify-content: center;
+              align-items: center;
+            }
+
+          </style>
+        </head>
+        <body>
+          <h1>Wordle</h1>
+          <div class="game">
+           ${imageText
+             .map(
+               (row) =>
+                 `<div class="row">${row
+                   .map((cell) => `<div class="cell">${cell}</div>`)
+                   .join('')}</div>`
+             )
+             .join('')}
+          </div>
+        </body>
+      </html>
+    `;
+
+    MailComposer.composeAsync({
+      subject: `I just played Wordle!`,
+      body: html,
+      isHtml: true,
+    });
   };
 
   const navigateRoot = () => {
