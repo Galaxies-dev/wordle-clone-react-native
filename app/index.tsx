@@ -8,6 +8,9 @@ import SubscribeModal from '@/components/SubscribeModal';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useRef } from 'react';
 import { SignedOut } from '@clerk/clerk-expo';
+import Animated, { FadeIn, SlideInLeft } from 'react-native-reanimated';
+
+const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
 
 export default function Index() {
   const colorScheme = useColorScheme();
@@ -18,7 +21,7 @@ export default function Index() {
   const handlePresentSubscribeModalPress = () => subscribeModalRef.current?.present();
 
   return (
-    <View style={[styles.container, { backgroundColor }]}>
+    <Animated.View style={[styles.container, { backgroundColor }]}>
       <SubscribeModal ref={subscribeModalRef} />
 
       <View style={styles.header}>
@@ -32,31 +35,32 @@ export default function Index() {
           href={'/game'}
           style={[styles.btn, { backgroundColor: colorScheme === 'light' ? '#000' : '#4a4a4a' }]}
           asChild>
-          <TouchableOpacity>
+          <AnimatedTouchableOpacity entering={FadeIn}>
             <Text style={[styles.btnText, styles.primaryText]}>Play</Text>
-          </TouchableOpacity>
+          </AnimatedTouchableOpacity>
         </Link>
 
         <SignedOut>
           <Link href={'/login'} style={[styles.btn, { borderColor: textColor }]} asChild>
-            <TouchableOpacity>
+            <AnimatedTouchableOpacity entering={FadeIn.delay(100)}>
               <ThemedText style={styles.btnText}>Log in</ThemedText>
-            </TouchableOpacity>
+            </AnimatedTouchableOpacity>
           </Link>
         </SignedOut>
-        <TouchableOpacity
+        <AnimatedTouchableOpacity
           style={[styles.btn, { borderColor: textColor }]}
-          onPress={handlePresentSubscribeModalPress}>
+          onPress={handlePresentSubscribeModalPress}
+          entering={FadeIn.delay(200)}>
           <ThemedText style={styles.btnText}>Subscribe</ThemedText>
-        </TouchableOpacity>
+        </AnimatedTouchableOpacity>
       </View>
 
-      <View style={styles.footer}>
+      <Animated.View style={styles.footer} entering={FadeIn.delay(300)}>
         <ThemedText style={styles.footerDate}>{format(new Date(), 'MMMM d, yyyy')}</ThemedText>
         <ThemedText style={styles.footerText}>No. 1151</ThemedText>
         <ThemedText style={styles.footerText}>Edited by Simon Grimm</ThemedText>
-      </View>
-    </View>
+      </Animated.View>
+    </Animated.View>
   );
 }
 

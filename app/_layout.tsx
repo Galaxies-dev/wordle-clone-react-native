@@ -39,7 +39,7 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const router = useRouter();
-  const [dark, setDark] = useMMKVBoolean('dark-mode', storage);
+  const [dark] = useMMKVBoolean('dark-mode', storage);
 
   useEffect(() => {
     Appearance.setColorScheme(dark ? 'dark' : 'light');

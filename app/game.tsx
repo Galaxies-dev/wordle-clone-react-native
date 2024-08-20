@@ -8,6 +8,17 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { Stack, useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withRepeat,
+  withSequence,
+  withTiming,
+  ZoomIn,
+} from 'react-native-reanimated';
+
+const ROWS = 3;
 
 const Page = () => {
   // const [word, setWord] = useState(words[Math.floor(Math.random() * words.length)]);
@@ -22,7 +33,7 @@ const Page = () => {
   console.log('🚀 ~ Page ~ word:', word);
   const wordLetters = word.split('');
 
-  const [rows, setRows] = useState<string[][]>(new Array(3).fill(new Array(5).fill('')));
+  const [rows, setRows] = useState<string[][]>(new Array(ROWS).fill(new Array(5).fill('')));
   const [curRow, setCurRow] = useState(0);
   const [curCol, setCurCol] = useState(0);
 
@@ -69,15 +80,16 @@ const Page = () => {
     console.log('🚀 ~ checkWord ~ currentWord', currentWord);
 
     if (currentWord.length < word.length) {
-      // TODO: show error
+      shakeRow();
       return;
     }
 
     // if (!allWords.includes(currentWord)) {
     //   console.log('NOT A WORD');
-    //   // TODO: show error
+    //   shakeRow();
     //   return;
     // }
+    flipRow();
 
     const newGreen: string[] = [];
     const newYellow: string[] = [];
@@ -104,30 +116,142 @@ const Page = () => {
       console.log('GAME OVER');
       router.push(`/end?win=false&word=${word}&gameField=${JSON.stringify(rows)}`);
     }
-
     setCurRow(curRow + 1);
     setCurCol(0);
   };
 
-  const getCellColor = (cell: string, rowIndex: number, cellIndex: number) => {
-    if (curRow > rowIndex) {
+  // const getCellColor = (cell: string, rowIndex: number, cellIndex: number) => {
+  //   'worklet';
+  //   if (curRow > rowIndex) {
+  //     if (wordLetters[cellIndex] === cell) {
+  //       return Colors.light.green;
+  //     } else if (wordLetters.includes(cell)) {
+  //       return Colors.light.yellow;
+  //     } else {
+  //       return grayColor;
+  //     }
+  //   }
+  //   return 'transparent';
+  // };
+
+  // const getBorderColor = (cell: string, rowIndex: number, cellIndex: number) => {
+  //   if (curRow > rowIndex && cell !== '') {
+  //     return getCellColor(cell, rowIndex, cellIndex);
+  //   }
+  //   return Colors.light.gray;
+  // };
+
+  // Animations
+  const setCellColor = (cell: string, rowIndex: number, cellIndex: number) => {
+    if (curRow >= rowIndex) {
       if (wordLetters[cellIndex] === cell) {
-        return Colors.light.green;
+        cellBackgrounds[rowIndex][cellIndex].value = withDelay(
+          cellIndex * 200,
+          withTiming(Colors.light.green)
+        );
       } else if (wordLetters.includes(cell)) {
-        return Colors.light.yellow;
+        cellBackgrounds[rowIndex][cellIndex].value = withDelay(
+          cellIndex * 200,
+          withTiming(Colors.light.yellow)
+        );
       } else {
-        return grayColor;
+        cellBackgrounds[rowIndex][cellIndex].value = withDelay(
+          cellIndex * 200,
+          withTiming(grayColor)
+        );
       }
+    } else {
+      cellBackgrounds[rowIndex][cellIndex].value = withTiming('transparent', { duration: 100 });
     }
-    return 'transparent';
   };
 
-  const getBorderColor = (cell: string, rowIndex: number, cellIndex: number) => {
+  const setBorderColor = (cell: string, rowIndex: number, cellIndex: number) => {
     if (curRow > rowIndex && cell !== '') {
-      return getCellColor(cell, rowIndex, cellIndex);
+      if (wordLetters[cellIndex] === cell) {
+        cellBorders[rowIndex][cellIndex].value = withDelay(
+          cellIndex * 200,
+          withTiming(Colors.light.green)
+        );
+      } else if (wordLetters.includes(cell)) {
+        cellBorders[rowIndex][cellIndex].value = withDelay(
+          cellIndex * 200,
+          withTiming(Colors.light.yellow)
+        );
+      } else {
+        cellBorders[rowIndex][cellIndex].value = withDelay(cellIndex * 200, withTiming(grayColor));
+      }
     }
     return Colors.light.gray;
   };
+
+  const offsetShakes = Array.from({ length: ROWS }, () => useSharedValue(0));
+
+  const rowStyles = Array.from({ length: ROWS }, (_, index) =>
+    useAnimatedStyle(() => {
+      return {
+        transform: [{ translateX: offsetShakes[index].value }],
+      };
+    })
+  );
+
+  const tileRotates = Array.from({ length: ROWS }, () =>
+    Array.from({ length: 5 }, () => useSharedValue(0))
+  );
+
+  const cellBackgrounds = Array.from({ length: ROWS }, () =>
+    Array.from({ length: 5 }, () => useSharedValue('transparent'))
+  );
+
+  const cellBorders = Array.from({ length: ROWS }, () =>
+    Array.from({ length: 5 }, () => useSharedValue(Colors.light.gray))
+  );
+
+  const tileStyles = Array.from({ length: ROWS }, (_, index) => {
+    return Array.from({ length: 5 }, (_, tileIndex) =>
+      useAnimatedStyle(() => {
+        return {
+          transform: [{ rotateX: `${tileRotates[index][tileIndex].value}deg` }],
+          borderColor: cellBorders[index][tileIndex].value,
+          backgroundColor: cellBackgrounds[index][tileIndex].value,
+        };
+      })
+    );
+  });
+
+  const shakeRow = () => {
+    const TIME = 80;
+    const OFFSET = 10;
+
+    offsetShakes[curRow].value = withSequence(
+      withTiming(-OFFSET, { duration: TIME / 2 }),
+      withRepeat(withTiming(OFFSET, { duration: TIME }), 4, true),
+      withTiming(0, { duration: TIME / 2 })
+    );
+  };
+
+  const flipRow = () => {
+    const TIME = 300;
+    const OFFSET = 90;
+
+    tileRotates[curRow].forEach((value, index) => {
+      value.value = withDelay(
+        index * 100,
+        withSequence(
+          withTiming(OFFSET, { duration: TIME }, () => {}),
+          withTiming(0, { duration: TIME })
+        )
+      );
+    });
+  };
+
+  useEffect(() => {
+    if (curRow === 0) return;
+
+    rows[curRow - 1].map((cell, cellIndex) => {
+      setCellColor(cell, curRow - 1, cellIndex);
+      setBorderColor(cell, curRow - 1, cellIndex);
+    });
+  }, [curRow]);
 
   return (
     <View style={[styles.container, { backgroundColor }]}>
@@ -147,18 +271,19 @@ const Page = () => {
       />
       <View style={styles.gameField}>
         {rows.map((row, rowIndex) => (
-          <View style={styles.gameFieldRow} key={`row-${rowIndex}`}>
+          <Animated.View style={[styles.gameFieldRow, rowStyles[rowIndex]]} key={`row-${rowIndex}`}>
             {row.map((cell, cellIndex) => (
-              <View
+              <Animated.View
                 key={`cell-${rowIndex}-${cellIndex}`}
                 style={[
                   styles.cell,
-                  {
-                    borderColor: getBorderColor(cell, rowIndex, cellIndex),
-                    backgroundColor: getCellColor(cell, rowIndex, cellIndex),
-                  },
+                  // {
+                  //   borderColor: getBorderColor(cell, rowIndex, cellIndex),
+                  //   backgroundColor: getCellColor(cell, rowIndex, cellIndex),
+                  // },
+                  tileStyles[rowIndex][cellIndex],
                 ]}>
-                <Text
+                <Animated.Text
                   style={[
                     styles.cellText,
                     {
@@ -166,10 +291,10 @@ const Page = () => {
                     },
                   ]}>
                   {cell}
-                </Text>
-              </View>
+                </Animated.Text>
+              </Animated.View>
             ))}
-          </View>
+          </Animated.View>
         ))}
       </View>
       <OnScreenKeyboard
