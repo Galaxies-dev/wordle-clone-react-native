@@ -44,3 +44,5 @@ expo-env.d.ts
 
 android/
 ios/
+# Local Netlify folder
+.netlify

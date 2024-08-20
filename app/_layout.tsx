@@ -5,15 +5,7 @@ import {
   FrankRuhlLibre_500Medium,
   FrankRuhlLibre_900Black,
 } from '@expo-google-fonts/frank-ruhl-libre';
-import {
-  useColorScheme,
-  View,
-  StyleSheet,
-  Touchable,
-  TouchableOpacity,
-  Appearance,
-  Platform,
-} from 'react-native';
+import { useColorScheme, TouchableOpacity, Appearance, Platform } from 'react-native';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';

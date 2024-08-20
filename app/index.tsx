@@ -1,4 +1,11 @@
-import { StyleSheet, Text, View, TouchableOpacity, Image, useColorScheme } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  useColorScheme,
+  useWindowDimensions,
+} from 'react-native';
 import Icon from '@/assets/images/wordle-icon.svg';
 import { format } from 'date-fns';
 import { Colors } from '@/constants/Colors';
@@ -7,8 +14,8 @@ import { Link } from 'expo-router';
 import SubscribeModal from '@/components/SubscribeModal';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useRef } from 'react';
-import { SignedOut } from '@clerk/clerk-expo';
-import Animated, { FadeIn, SlideInLeft } from 'react-native-reanimated';
+import { SignedIn, SignedOut, useAuth } from '@clerk/clerk-expo';
+import Animated, { FadeIn, FadeInDown, FadeInLeft } from 'react-native-reanimated';
 
 const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
 
@@ -17,6 +24,8 @@ export default function Index() {
   const backgroundColor = Colors[colorScheme ?? 'light'].background;
   const textColor = Colors[colorScheme ?? 'light'].text;
   const subscribeModalRef = useRef<BottomSheetModal>(null);
+  const { width } = useWindowDimensions();
+  const { signOut } = useAuth();
 
   const handlePresentSubscribeModalPress = () => subscribeModalRef.current?.present();
 
@@ -24,33 +33,43 @@ export default function Index() {
     <Animated.View style={[styles.container, { backgroundColor }]}>
       <SubscribeModal ref={subscribeModalRef} />
 
-      <View style={styles.header}>
+      <Animated.View style={styles.header} entering={FadeInDown}>
         <Icon width={100} height={70} />
         <ThemedText style={styles.title}>Wordle</ThemedText>
         <ThemedText style={styles.text}>Get 6 chances to guess a 5-letter word.</ThemedText>
-      </View>
+      </Animated.View>
 
-      <View style={styles.menu}>
+      <View style={[styles.menu, { flexDirection: width > 600 ? 'row' : 'column' }]}>
         <Link
           href={'/game'}
           style={[styles.btn, { backgroundColor: colorScheme === 'light' ? '#000' : '#4a4a4a' }]}
           asChild>
-          <AnimatedTouchableOpacity entering={FadeIn}>
+          <AnimatedTouchableOpacity entering={FadeInLeft}>
             <Text style={[styles.btnText, styles.primaryText]}>Play</Text>
           </AnimatedTouchableOpacity>
         </Link>
 
         <SignedOut>
           <Link href={'/login'} style={[styles.btn, { borderColor: textColor }]} asChild>
-            <AnimatedTouchableOpacity entering={FadeIn.delay(100)}>
+            <AnimatedTouchableOpacity entering={FadeInLeft.delay(100)}>
               <ThemedText style={styles.btnText}>Log in</ThemedText>
             </AnimatedTouchableOpacity>
           </Link>
         </SignedOut>
+
+        <SignedIn>
+          <AnimatedTouchableOpacity
+            onPress={() => signOut()}
+            entering={FadeInLeft.delay(100)}
+            style={[styles.btn, { borderColor: textColor }]}>
+            <ThemedText style={styles.btnText}>Sign out</ThemedText>
+          </AnimatedTouchableOpacity>
+        </SignedIn>
+
         <AnimatedTouchableOpacity
           style={[styles.btn, { borderColor: textColor }]}
           onPress={handlePresentSubscribeModalPress}
-          entering={FadeIn.delay(200)}>
+          entering={FadeInLeft.delay(200)}>
           <ThemedText style={styles.btnText}>Subscribe</ThemedText>
         </AnimatedTouchableOpacity>
       </View>
@@ -86,6 +105,7 @@ const styles = StyleSheet.create({
   },
   menu: {
     alignItems: 'center',
+    justifyContent: 'center',
     gap: 10,
   },
   btn: {
@@ -95,6 +115,7 @@ const styles = StyleSheet.create({
     borderColor: '#000',
     borderWidth: 1,
     width: '60%',
+    maxWidth: 200,
   },
   btnText: {
     padding: 14,

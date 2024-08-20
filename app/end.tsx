@@ -116,6 +116,7 @@ const Page = () => {
 
   const navigateRoot = () => {
     router.dismissAll();
+    router.replace('/');
   };
 
   return (
@@ -201,7 +202,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   title: {
-    fontSize: 40,
+    fontSize: 38,
     fontFamily: 'FrankRuhlLibre_800ExtraBold',
     textAlign: 'center',
   },

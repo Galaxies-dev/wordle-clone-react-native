@@ -1,6 +1,7 @@
-import { Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Colors } from '@/constants/Colors';
+
 type OnScreenKeyboardProps = {
   onKeyPressed: (key: string) => void;
   greenLetters: string[];
@@ -24,7 +25,7 @@ const OnScreenKeyboard = ({
   grayLetters,
 }: OnScreenKeyboardProps) => {
   const { width } = useWindowDimensions();
-  const keyWidth = (width - 60) / keys[0].length;
+  const keyWidth = Platform.OS === 'web' ? 58 : (width - 60) / keys[0].length;
   const keyHeight = 60;
 
   const isSpecialKey = (key: string) => key === ENTER || key === BACKSPACE;
@@ -81,8 +82,9 @@ const OnScreenKeyboard = ({
 export default OnScreenKeyboard;
 const styles = StyleSheet.create({
   container: {
-    marginTop: 'auto',
+    marginTop: 40,
     gap: 6,
+    alignSelf: 'center',
   },
   row: {
     flexDirection: 'row',
