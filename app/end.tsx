@@ -4,6 +4,8 @@ import Icon from '@/assets/images/wordle-icon.svg';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/Colors';
 import * as MailComposer from 'expo-mail-composer';
+import { SignedOut, useUser } from '@clerk/clerk-expo';
+import { useEffect } from 'react';
 
 const Page = () => {
   const { win, word, gameField } = useLocalSearchParams<{
@@ -12,6 +14,14 @@ const Page = () => {
     gameField?: string;
   }>();
   const router = useRouter();
+  const user = useUser();
+
+  useEffect(() => {
+    if (user) {
+      console.log('🚀 ~ user:', user);
+      console.log('UPDATE FIREBASE');
+    }
+  }, [user]);
 
   const shareGame = () => {
     const game = JSON.parse(gameField!);
@@ -103,18 +113,19 @@ const Page = () => {
           {win === 'true' ? 'Congratulations!' : 'Thanks for playing today!'}
         </Text>
         <Text style={styles.text}>Want to see your stats and streaks?</Text>
+        <SignedOut>
+          <Link href={'/login'} style={styles.btn} asChild>
+            <TouchableOpacity>
+              <Text style={styles.btnText}>Create a free account</Text>
+            </TouchableOpacity>
+          </Link>
 
-        <Link href={'/login'} style={styles.btn} asChild>
-          <TouchableOpacity>
-            <Text style={styles.btnText}>Create a free account</Text>
-          </TouchableOpacity>
-        </Link>
-
-        <Link href={'/login'} asChild>
-          <TouchableOpacity>
-            <Text style={styles.textLink}>Already Registered? Log In</Text>
-          </TouchableOpacity>
-        </Link>
+          <Link href={'/login'} asChild>
+            <TouchableOpacity>
+              <Text style={styles.textLink}>Already Registered? Log In</Text>
+            </TouchableOpacity>
+          </Link>
+        </SignedOut>
 
         <View
           style={{

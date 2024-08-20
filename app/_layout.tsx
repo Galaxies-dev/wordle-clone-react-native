@@ -12,6 +12,7 @@ import {
   Touchable,
   TouchableOpacity,
   Appearance,
+  Platform,
 } from 'react-native';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import * as SplashScreen from 'expo-splash-screen';
@@ -42,7 +43,9 @@ export default function RootLayout() {
   const [dark] = useMMKVBoolean('dark-mode', storage);
 
   useEffect(() => {
-    Appearance.setColorScheme(dark ? 'dark' : 'light');
+    if (Platform.OS !== 'web') {
+      Appearance.setColorScheme(dark ? 'dark' : 'light');
+    }
   }, [dark]);
 
   let [fontsLoaded] = useFonts({
